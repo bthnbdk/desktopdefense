@@ -27,10 +27,15 @@ export default function App() {
     '--hud-text': theme.hudText,
     '--accent-primary': theme.accentPrimary,
     '--accent-secondary': theme.accentSecondary,
+    '--accent-contrast': theme.accentContrast || '#ffffff',
+    '--is-light': theme.isLight ? '1' : '0',
+    '--border-color': theme.isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.05)',
+    '--text-dim': theme.isLight ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.4)',
+    '--text-bright': theme.isLight ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)',
   } as React.CSSProperties;
 
   return (
-    <div className="w-screen h-screen bg-black overflow-hidden m-0 p-0 flex items-center justify-center relative select-none" style={themeVars}>
+    <div className={`w-screen h-screen ${theme.isLight ? 'bg-white' : 'bg-black'} overflow-hidden m-0 p-0 flex items-center justify-center relative select-none`} style={themeVars}>
       <div className="md:hidden absolute inset-0 z-[100] bg-black flex flex-col items-center justify-center text-white p-4 text-center">
         <Smartphone size={64} className="mb-4 animate-pulse" />
         <h2 className="text-xl font-bold">Please rotate your device</h2>

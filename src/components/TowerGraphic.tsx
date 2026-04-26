@@ -17,7 +17,7 @@ export const TowerGraphic: React.FC<{ type: TowerType, themeName: ThemeName, ang
         ctx.translate(size/2, size/2);
         ctx.rotate(angle); 
         
-        drawTowerDesign(ctx, type, color, size * 0.5);
+        drawTowerDesign(ctx, type, color, size * 0.5, theme.isLight);
         
         ctx.restore();
     }, [type, themeName, angle, size]);

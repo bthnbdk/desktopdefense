@@ -1,30 +1,72 @@
 import { Point } from '../types';
 import { Grid } from './Grid';
 
-// A simple Min-Heap for A* open set
+// A proper Min-Heap for A* open set
 class PriorityQueue<T> {
   private elements: { item: T; priority: number }[] = [];
 
   enqueue(item: T, priority: number) {
     this.elements.push({ item, priority });
-    this.elements.sort((a, b) => a.priority - b.priority); // Simple sort-based for now, sufficient for small grids
+    this.bubbleUp(this.elements.length - 1);
   }
 
   dequeue(): T | undefined {
-    return this.elements.shift()?.item;
+    if (this.isEmpty()) return undefined;
+    const top = this.elements[0];
+    const bottom = this.elements.pop();
+    if (this.elements.length > 0 && bottom) {
+      this.elements[0] = bottom;
+      this.bubbleDown(0);
+    }
+    return top.item;
   }
 
   isEmpty(): boolean {
     return this.elements.length === 0;
   }
+
+  private bubbleUp(index: number) {
+    while (index > 0) {
+      const parentIndex = Math.floor((index - 1) / 2);
+      if (this.elements[parentIndex].priority <= this.elements[index].priority) break;
+      [this.elements[parentIndex], this.elements[index]] = [this.elements[index], this.elements[parentIndex]];
+      index = parentIndex;
+    }
+  }
+
+  private bubbleDown(index: number) {
+    while (true) {
+      let smallest = index;
+      const leftChild = 2 * index + 1;
+      const rightChild = 2 * index + 2;
+
+      if (leftChild < this.elements.length && this.elements[leftChild].priority < this.elements[smallest].priority) {
+        smallest = leftChild;
+      }
+      if (rightChild < this.elements.length && this.elements[rightChild].priority < this.elements[smallest].priority) {
+        smallest = rightChild;
+      }
+
+      if (smallest === index) break;
+      [this.elements[index], this.elements[smallest]] = [this.elements[smallest], this.elements[index]];
+      index = smallest;
+    }
+  }
 }
 
 export class Pathfinder {
+  private lastPath: Point[] | null = null;
+  private lastGridVersion: number = -1;
+
   /**
    * Finds the shortest path using A* on a 4-directional grid.
    * Returns array of points from entry to exit, or null if no path.
    */
   public findPath(grid: Grid, entry: Point, exit: Point): Point[] | null {
+    if (this.lastPath && grid.version === this.lastGridVersion) {
+        return this.lastPath;
+    }
+
     const startId = this.toId(entry.col, entry.row);
     const goalId = this.toId(exit.col, exit.row);
 
@@ -63,6 +105,8 @@ export class Pathfinder {
     }
 
     if (!cameFrom.has(goalId)) {
+      this.lastPath = null;
+      this.lastGridVersion = grid.version;
       return null;
     }
 
@@ -78,6 +122,8 @@ export class Pathfinder {
     path.push(entry);
     path.reverse();
 
+    this.lastPath = path;
+    this.lastGridVersion = grid.version;
     return path;
   }
 

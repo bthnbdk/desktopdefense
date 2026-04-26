@@ -3,17 +3,18 @@ import { Theme } from '../types';
 export const themes: Record<string, Theme> = {
   desktop: {
     name: 'Desktop',
-    bg: '#f0ede4',
-    gridLine: '#d8d4c7',
-    pathFill: '#d8d4c7',
-    emptyCellFill: '#fdfbf7',
-    accentPrimary: '#1a5f7a',
-    accentSecondary: '#576f72',
-    hudBg: '#fffcf0',
-    hudText: '#2c3639',
-    panelBg: '#fffcf0',
-    enemyColors: { normal: '#e11d48', fast: '#ea580c', boss: '#9f1239', group: '#be185d', immune: '#475569', spawn: '#c026d3', flying: '#6d28d9' },
-    towerColors: { pellet: '#1a5f7a', splash: '#a1c298', slow: '#f7d060', sniper: '#404258', chain: '#ff8787', mortar: '#6d28d9' }
+    bg: '#0F172A',
+    gridLine: '#1E293B',
+    pathFill: '#1E293B',
+    emptyCellFill: '#0F172A',
+    accentPrimary: '#38BDF8',
+    accentSecondary: '#94A3B8',
+    hudBg: '#1E293B',
+    hudText: '#F8FAFC',
+    panelBg: '#1E293B',
+    enemyColors: { normal: '#EF4444', fast: '#F97316', boss: '#7F1D1D', group: '#EC4899', immune: '#64748B', spawn: '#D946EF', flying: '#8B5CF6' },
+    towerColors: { pellet: '#38BDF8', splash: '#22C55E', slow: '#EAB308', sniper: '#F8FAFC', chain: '#F472B6', mortar: '#8B5CF6' },
+    accentContrast: '#000000'
   },
   neonVoid: {
     name: 'Neon Void',
@@ -27,7 +28,8 @@ export const themes: Record<string, Theme> = {
     hudText: '#00ffee',
     panelBg: '#090812',
     enemyColors: { normal: '#ff3366', fast: '#ff6633', boss: '#ff0000', group: '#ff88aa', immune: '#ddddff', spawn: '#cc0055', flying: '#ff00ff' },
-    towerColors: { pellet: '#00ffee', splash: '#00ffaa', slow: '#0055ff', sniper: '#ffffff', chain: '#ffff00', mortar: '#00aaff' }
+    towerColors: { pellet: '#00ffee', splash: '#00ffaa', slow: '#0055ff', sniper: '#ffffff', chain: '#ffff00', mortar: '#00aaff' },
+    accentContrast: '#000000'
   },
   synthwave: {
     name: 'Synthwave',
@@ -41,7 +43,8 @@ export const themes: Record<string, Theme> = {
     hudText: '#00ffcc',
     panelBg: '#200e3a',
     enemyColors: { normal: '#ff0055', fast: '#ff3300', boss: '#aa0000', group: '#ff2277', immune: '#ffdd00', spawn: '#880022', flying: '#ff00aa' },
-    towerColors: { pellet: '#00ffcc', splash: '#00ccff', slow: '#9900ff', sniper: '#ffffff', chain: '#00ff55', mortar: '#8800ff' }
+    towerColors: { pellet: '#00ffcc', splash: '#00ccff', slow: '#9900ff', sniper: '#ffffff', chain: '#00ff55', mortar: '#8800ff' },
+    accentContrast: '#000000'
   },
   matrix: {
     name: 'Matrix',
@@ -55,7 +58,8 @@ export const themes: Record<string, Theme> = {
     hudText: '#00ff00',
     panelBg: '#001100',
     enemyColors: { normal: '#ff0000', fast: '#ffaa00', boss: '#cc0000', group: '#ff5555', immune: '#bbbbbb', spawn: '#880000', flying: '#ff00ff' },
-    towerColors: { pellet: '#00ff00', splash: '#00cc00', slow: '#0055ff', sniper: '#ffffff', chain: '#00ffff', mortar: '#55ff55' }
+    towerColors: { pellet: '#00ff00', splash: '#00cc00', slow: '#0055ff', sniper: '#ffffff', chain: '#00ffff', mortar: '#55ff55' },
+    accentContrast: '#000000'
   },
   arctic: {
     name: 'Arctic',
@@ -69,7 +73,8 @@ export const themes: Record<string, Theme> = {
     hudText: '#00ccff',
     panelBg: '#001933',
     enemyColors: { normal: '#ff5533', fast: '#ffaa33', boss: '#ff0000', group: '#ff77aa', immune: '#aaaaaa', spawn: '#cc3300', flying: '#ff00ff' },
-    towerColors: { pellet: '#00ccff', splash: '#ffffff', slow: '#0055aa', sniper: '#00ff00', chain: '#00ffff', mortar: '#5555ff' }
+    towerColors: { pellet: '#00ccff', splash: '#ffffff', slow: '#0055aa', sniper: '#00ff00', chain: '#00ffff', mortar: '#5555ff' },
+    accentContrast: '#000000'
   },
   lava: {
     name: 'Lava',
@@ -83,7 +88,8 @@ export const themes: Record<string, Theme> = {
     hudText: '#ff5500',
     panelBg: '#2a0000',
     enemyColors: { normal: '#ff5500', fast: '#ffcc00', boss: '#ff0000', group: '#ff8800', immune: '#ffffff', spawn: '#555555', flying: '#00ffff' },
-    towerColors: { pellet: '#ff5500', splash: '#ffcc00', slow: '#aa0000', sniper: '#ffffff', chain: '#ffff00', mortar: '#ff0000' }
+    towerColors: { pellet: '#ff5500', splash: '#ffcc00', slow: '#aa0000', sniper: '#ffffff', chain: '#ffff00', mortar: '#ff0000' },
+    accentContrast: '#000000'
   },
   monochrome: {
     name: 'Monochrome',
@@ -97,6 +103,71 @@ export const themes: Record<string, Theme> = {
     hudText: '#ffffff',
     panelBg: '#111111',
     enemyColors: { normal: '#ffffff', fast: '#cccccc', boss: '#888888', group: '#eeeeee', immune: '#555555', spawn: '#444444', flying: '#999999' },
-    towerColors: { pellet: '#ffffff', splash: '#dddddd', slow: '#aaaaaa', sniper: '#cccccc', chain: '#eeeeee', mortar: '#777777' }
+    towerColors: { pellet: '#ffffff', splash: '#dddddd', slow: '#aaaaaa', sniper: '#cccccc', chain: '#eeeeee', mortar: '#777777' },
+    accentContrast: '#000000'
+  },
+  softLight: {
+    name: 'Soft Light',
+    bg: '#ffffff',
+    gridLine: '#cbd5e1',
+    pathFill: '#e2e8f0',
+    emptyCellFill: '#ffffff',
+    accentPrimary: '#2563eb',
+    accentSecondary: '#475569',
+    hudBg: '#ffffff',
+    hudText: '#0f172a',
+    panelBg: '#f8fafc',
+    enemyColors: { normal: '#dc2626', fast: '#d97706', boss: '#7f1d1d', group: '#db2777', immune: '#334155', spawn: '#9333ea', flying: '#7c3aed' },
+    towerColors: { pellet: '#2563eb', splash: '#059669', slow: '#d97706', sniper: '#1e293b', chain: '#e11d48', mortar: '#7c3aed' },
+    isLight: true,
+    accentContrast: '#ffffff'
+  },
+  frost: {
+    name: 'Frost',
+    bg: '#f0f9ff',
+    gridLine: '#7dd3fc',
+    pathFill: '#bae6fd',
+    emptyCellFill: '#ffffff',
+    accentPrimary: '#0284c7',
+    accentSecondary: '#334155',
+    hudBg: '#ffffff',
+    hudText: '#082f49',
+    panelBg: '#f0f9ff',
+    enemyColors: { normal: '#dc2626', fast: '#ca8a04', boss: '#7f1d1d', group: '#db2777', immune: '#475569', spawn: '#9333ea', flying: '#6d28d9' },
+    towerColors: { pellet: '#0284c7', splash: '#10b981', slow: '#d97706', sniper: '#0f172a', chain: '#e11d48', mortar: '#7c3aed' },
+    isLight: true,
+    accentContrast: '#ffffff'
+  },
+  papyrus: {
+    name: 'Papyrus',
+    bg: '#fffbeb',
+    gridLine: '#fcd34d',
+    pathFill: '#fde68a',
+    emptyCellFill: '#fffbeb',
+    accentPrimary: '#92400e',
+    accentSecondary: '#451a03',
+    hudBg: '#fffbeb',
+    hudText: '#451a03',
+    panelBg: '#fef3c7',
+    enemyColors: { normal: '#b91c1c', fast: '#b45309', boss: '#450a0a', group: '#9f1239', immune: '#422006', spawn: '#701a75', flying: '#4c1d95' },
+    towerColors: { pellet: '#92400e', splash: '#166534', slow: '#854d0e', sniper: '#0f172a', chain: '#9f1239', mortar: '#581c87' },
+    isLight: true,
+    accentContrast: '#ffffff'
+  },
+  mint: {
+    name: 'Mint',
+    bg: '#f0fdf4',
+    gridLine: '#86efac',
+    pathFill: '#bbf7d0',
+    emptyCellFill: '#f0fdf4',
+    accentPrimary: '#15803d',
+    accentSecondary: '#064e3b',
+    hudBg: '#f0fdf4',
+    hudText: '#064e3b',
+    panelBg: '#dcfce7',
+    enemyColors: { normal: '#dc2626', fast: '#ca8a04', boss: '#14532d', group: '#be123c', immune: '#022c22', spawn: '#701a75', flying: '#4c1d95' },
+    towerColors: { pellet: '#15803d', splash: '#0891b2', slow: '#92400e', sniper: '#0f172a', chain: '#be123c', mortar: '#581c87' },
+    isLight: true,
+    accentContrast: '#ffffff'
   }
 };

@@ -56,7 +56,7 @@ export const GameCanvas: React.FC = () => {
   useGame(canvasRef, dimensions.width, dimensions.height);
 
   return (
-    <div ref={wrapperRef} className="w-full h-full flex flex-col items-center justify-center overflow-hidden bg-black relative">
+    <div ref={wrapperRef} className={`w-full h-full flex flex-col items-center justify-center overflow-hidden relative`} style={{ backgroundColor: 'var(--bg-color)' }}>
       <canvas
         ref={canvasRef}
         className="block"

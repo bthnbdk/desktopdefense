@@ -41,7 +41,18 @@ export function useGame(canvasRef: RefObject<HTMLCanvasElement | null>, logicalW
         engineRef.current?.handleInput(x, y, 'click', useHudStore.getState());
     };
     
+    const handlePointerMove = (e: PointerEvent) => {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = logicalW / rect.width;
+        const scaleY = logicalH / rect.height;
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
+        
+        engineRef.current?.handleInput(x, y, 'mousemove', useHudStore.getState());
+    };
+    
     canvas.addEventListener('pointerup', handlePointerUp);
+    canvas.addEventListener('pointermove', handlePointerMove);
 
     return () => {
       // We don't call destroy() here if we want to preserve instance state between resizes.
@@ -49,6 +60,7 @@ export function useGame(canvasRef: RefObject<HTMLCanvasElement | null>, logicalW
       engineRef.current?.stopLoop(); 
       eventBusRef.current?.off('hud:update', handleHudUpdate);
       canvas.removeEventListener('pointerup', handlePointerUp);
+      canvas.removeEventListener('pointermove', handlePointerMove);
     };
   }, [canvasRef, logicalW, logicalH]);
 

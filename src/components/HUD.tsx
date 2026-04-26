@@ -1,11 +1,30 @@
-import React from 'react';
-import { VolumeX, Volume2, Pause, Play, FastForward, Heart, Coins, Palette, RotateCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { VolumeX, Volume2, Pause, Play, FastForward, Heart, Coins, Palette, RotateCw, Maximize2 } from 'lucide-react';
 import { useHudStore } from '../store';
 import { themes } from '../data/themes';
 import { ThemeName } from '../types';
 
 export const HUD: React.FC = () => {
   const { lives, gold, score, soundMuted, autoWave, isPaused, activeTheme, setHudState } = useHudStore();
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullScreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   const handleSendWave = () => {
     window.dispatchEvent(new CustomEvent('ui:sendWave'));
@@ -28,9 +47,7 @@ export const HUD: React.FC = () => {
   };
 
   const handleRestart = () => {
-    if (window.confirm("Are you sure you want to restart the game?")) {
-        window.dispatchEvent(new CustomEvent('ui:restartGame', { detail: { stateRef: useHudStore.getState() } }));
-    }
+    window.dispatchEvent(new CustomEvent('ui:restartGame', { detail: { stateRef: useHudStore.getState() } }));
   };
 
   const cycleTheme = () => {
@@ -40,78 +57,101 @@ export const HUD: React.FC = () => {
   };
 
   return (
-    <div className="absolute top-0 left-0 w-full h-[48px] px-4 flex items-center justify-between font-mono pointer-events-none border-b border-[var(--grid-line,rgba(255,255,255,0.2))] z-50" style={{ backgroundColor: 'var(--hud-bg, rgba(255, 255, 255, 0.9))', color: 'var(--hud-text, #0f172a)' }}>
+    <div className="absolute top-0 left-0 w-full h-[48px] px-4 flex items-center justify-between font-mono pointer-events-none border-b border-[var(--border-color)] z-50 panel-glass" style={{ color: 'var(--hud-text)' }}>
       <div className="flex gap-6 pointer-events-auto items-center">
         <div 
             onClick={() => setHudState({ gamePhase: 'menu' })}
-            className="font-bold border-r border-[var(--grid-line,rgba(255,255,255,0.2))] pr-6 tracking-tight flex items-center gap-2 cursor-pointer hover:opacity-70 transition-opacity"
+            className="font-black italic pr-6 cursor-pointer hover:opacity-70 transition-all flex items-center gap-1 group"
         >
-            <span className="font-extrabold uppercase">DesktopDefense</span>
-            <span className="text-[var(--accent-primary)]">.com</span>
+            <span className="text-xl tracking-tighter uppercase group-hover:text-[var(--accent-primary)] transition-colors">DESKTOPDEFENSE</span>
+            <span className="text-[10px] opacity-40 font-normal not-italic tracking-widest mt-1">v2.0</span>
         </div>
-        <div className="flex items-center gap-4 bg-black/5 dark:bg-white/5 py-1 px-3 rounded-lg border border-black/10 dark:border-white/10">
-           <div className="flex items-center gap-1.5 text-red-600 dark:text-red-500">
-             <Heart size={16} fill="currentColor" />
-             <span className="text-lg font-bold leading-none">{lives}</span>
+        
+           <div className="flex items-center gap-6 py-1 px-4 border-l border-[var(--border-color)]">
+           <div className="flex flex-col">
+              <span className="text-[8px] uppercase tracking-widest leading-none mb-1" style={{ color: 'var(--text-dim)' }}>Health</span>
+              <div className="flex items-center gap-1.5 text-red-500">
+                <Heart size={12} fill="currentColor" />
+                <span className="text-sm font-bold leading-none">{lives}</span>
+              </div>
            </div>
-           <div className="w-[1px] h-4 bg-black/10 dark:bg-white/10" />
-           <div className="flex items-center gap-1.5 text-yellow-600 dark:text-yellow-500">
-             <Coins size={16} fill="currentColor" />
-             <span className="text-lg font-bold leading-none">{gold}</span>
+           
+           <div className="flex flex-col">
+              <span className="text-[8px] uppercase tracking-widest leading-none mb-1" style={{ color: 'var(--text-dim)' }}>Money</span>
+              <div className="flex items-center gap-1.5 text-yellow-500">
+                <Coins size={12} fill="currentColor" />
+                <span className="text-sm font-bold leading-none">{gold}</span>
+              </div>
            </div>
-           <div className="w-[1px] h-4 bg-black/10 dark:bg-white/10" />
-           <div className="flex items-center gap-2">
-             <span className="text-[10px] uppercase font-bold opacity-60">Score</span>
-             <span className="font-bold text-[var(--accent-primary)] leading-none">{score}</span>
+
+           <div className="flex flex-col">
+              <span className="text-[8px] uppercase tracking-widest leading-none mb-1" style={{ color: 'var(--text-dim)' }}>Score</span>
+              <div className="flex items-center gap-1.5 text-[var(--accent-primary)]">
+                <span className="text-sm font-bold leading-none">{score.toLocaleString()}</span>
+              </div>
            </div>
         </div>
       </div>
       
-      <div className="flex gap-6 items-center pointer-events-auto">
-        <div className="flex gap-2">
+      <div className="flex gap-4 items-center pointer-events-auto">
+        <div className="flex gap-1">
+            {!isFullScreen && (
+               <div className="hidden lg:flex items-center mr-4 text-[8px] font-bold uppercase tracking-widest text-[var(--accent-primary)] animate-pulse">
+                  For Best Experience →
+               </div>
+            )}
+            <button 
+               onClick={toggleFullScreen}
+               className="w-8 h-8 flex items-center justify-center hover:bg-[var(--border-color)] border border-[var(--border-color)] text-sm transition-all cursor-pointer mr-2"
+               title="Toggle Full Screen"
+            >
+              <Maximize2 size={14} />
+            </button>
             <button 
                onClick={toggleMute}
-               className="w-8 h-8 flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 border border-black/20 dark:border-white/30 rounded text-sm transition-colors cursor-pointer"
+               className="w-8 h-8 flex items-center justify-center hover:bg-[var(--border-color)] border border-[var(--border-color)] text-sm transition-all cursor-pointer"
                title={soundMuted ? "Unmute" : "Mute"}
             >
-              {soundMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              {soundMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
             </button>
             <button 
                onClick={toggleAutoWave}
-               className={`h-8 px-2 flex items-center justify-center rounded text-xs font-bold transition-colors cursor-pointer border ${autoWave ? 'bg-[var(--accent-primary)]/20 border-[var(--accent-primary)] text-[var(--accent-primary)]' : 'bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 border-black/20 dark:border-white/30 text-current opacity-70'}`}
+               className={`h-8 px-3 flex items-center justify-center text-[9px] font-bold tracking-widest transition-all cursor-pointer border ${autoWave ? 'bg-[var(--accent-primary)]/20 border-[var(--accent-primary)] text-[var(--accent-primary)] shadow-[0_0_10px_rgba(var(--accent-primary-rgb),0.2)]' : 'bg-[var(--border-color)] hover:bg-[var(--accent-primary)]/10 border-[var(--border-color)] text-[var(--hud-text)]/40'}`}
                title="Auto Send Wave"
             >
-               AUTO <FastForward size={14} className="ml-1" />
+               AUTO <FastForward size={12} className="ml-1" />
             </button>
             <button 
                onClick={togglePause}
-               className="w-8 h-8 flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 border border-black/20 dark:border-white/30 rounded text-sm transition-colors cursor-pointer"
+               className="w-10 h-8 flex items-center justify-center hover:bg-[var(--border-color)] border border-[var(--border-color)] text-sm transition-all cursor-pointer"
                title={isPaused ? "Play" : "Pause"}
             >
-              {isPaused ? <Play size={16} fill="currentColor" /> : <Pause size={16} fill="currentColor" />}
+              {isPaused ? <Play size={14} fill="currentColor" /> : <Pause size={14} fill="currentColor" />}
             </button>
         </div>
+        
         <button 
           onClick={handleSendWave}
-          className="px-4 md:px-6 py-1.5 bg-[var(--accent-primary)]/10 text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/20 active:scale-95 rounded font-bold border border-[var(--accent-primary)] shadow-sm transition-all cursor-pointer"
+          className="px-6 py-2 bg-[var(--accent-primary)] hover:brightness-110 active:scale-95 text-[10px] tracking-[0.2em] font-black uppercase transition-all cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.15)] flex items-center gap-2"
+          style={{ color: 'var(--accent-contrast)' }}
         >
-          SEND WAVE ▶
+          NEXT WAVE <Play size={12} fill="currentColor" />
         </button>
-        <div className="w-[1px] h-6 bg-black/10 dark:bg-white/10 mx-1" />
-        <div className="flex gap-2">
+
+        <div className="flex gap-1 ml-4 border-l border-[var(--border-color)] pl-4">
             <button 
                onClick={handleRestart}
-               className="w-8 h-8 flex items-center justify-center bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 rounded text-orange-600 transition-colors cursor-pointer"
+               className="w-8 h-8 flex items-center justify-center hover:bg-orange-500/20 border border-orange-500/20 text-orange-500 transition-all cursor-pointer"
                title="Restart Game"
             >
-              <RotateCw size={16} />
+              <RotateCw size={14} />
             </button>
              <button 
                onClick={cycleTheme}
-               className="w-8 h-8 flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 border border-black/20 dark:border-white/30 rounded transition-colors cursor-pointer"
+               className="w-8 h-8 flex items-center justify-center hover:bg-white/10 border border-white/10 text-white/40 transition-all cursor-pointer"
                title="Change Theme"
              >
-                <Palette size={16} />
+                <Palette size={14} />
              </button>
         </div>
       </div>

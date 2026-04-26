@@ -31,6 +31,9 @@ export class EffectManager {
   }
 
   public spawnExplosion(x: number, y: number, color: string, count: number = 10) {
+    if (this.particles.length > 300) count = Math.floor(count / 2);
+    if (this.particles.length > 500) return;
+
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 100 + 50;
@@ -50,6 +53,8 @@ export class EffectManager {
   }
   
   public spawnHit(x: number, y: number, color: string, count: number = 4) {
+    if (this.particles.length > 500) return;
+    
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 50 + 20;

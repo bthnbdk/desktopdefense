@@ -31,11 +31,18 @@ export class GameEngine {
   private canvasW: number = 0;
   private canvasH: number = 0;
   private cellSize: number = 40;
+  private readonly COLS = 32;
+  private readonly ROWS = 18;
   private path: Point[] = [];
   private entry: Point = { col: 0, row: 0 };
   private exit: Point = { col: 0, row: 0 };
+  private hoveredCell: Point | null = null;
+  private lastPlacementSelectedType: string | null = null;
+  private placementValid: boolean = false;
 
   private isRunning: boolean = false;
+  private accumulator: number = 0;
+  private readonly FIXED_DT: number = 1 / 60; // 60 updates per second
 
   constructor(eventBus: EventBus) {
     this.eventBus = eventBus;
@@ -62,11 +69,10 @@ export class GameEngine {
       isPaused: false
     };
 
-    console.log('[GameEngine] Initialized');
+    // console.log('[GameEngine] Initialized');
     
     // Wire HUD actions
     this.eventBus.on('ui:sendWave', () => {
-       console.log('[GameEngine] ui:sendWave');
        this.waveManager.sendNextWaveEarly();
     });
     this.eventBus.on('ui:sellTower', (data) => {
@@ -78,15 +84,26 @@ export class GameEngine {
     this.eventBus.on('ui:targetMode', (data) => {
        this.setTargetMode(data.id, data.mode, data.stateRef);
     });
-    this.eventBus.on('ui:startGame', () => {
-       console.log('[GameEngine] ui:startGame received');
+    this.eventBus.on('ui:startGame', (data) => {
        this.state.phase = 'playing';
-       useHudStore.getState().setHudState({ gamePhase: 'playing', isPaused: false });
+       this.state.isPaused = false;
+       
+       if (data?.stateRef) {
+          data.stateRef.setHudState({ gamePhase: 'playing', isPaused: false });
+       } else {
+          useHudStore.getState().setHudState({ gamePhase: 'playing', isPaused: false });
+       }
+
        const lvl = levels[0];
        this.state.gold = lvl.startGold;
        this.state.lives = lvl.startLives;
        this.state.currentWave = 1;
        this.state.score = 0;
+       
+       this.towerManager.towers = [];
+       this.towerManager.projectiles = [];
+       this.enemyManager.enemies = [];
+       this.grid.clearTactical(); // Need to add this helper to Grid
        
        if (this.canvasW > 0) {
          this.initMap(this.canvasW - 180, this.canvasH - 48, true);
@@ -95,7 +112,6 @@ export class GameEngine {
        this.broadcastHudUpdate();
     });
     this.eventBus.on('ui:restartGame', (data) => {
-       console.log('[GameEngine] ui:restartGame');
        this.state.phase = 'playing';
        data.stateRef.setHudState({ gamePhase: 'playing' });
        const lvl = levels[0];
@@ -148,12 +164,8 @@ export class GameEngine {
   }
 
   private handleGlobalUiEvent(e: Event) {
-      if (e.type === 'ui:sendWave' || e.type === 'ui:startGame' || e.type === 'ui:restartGame') {
-          this.eventBus.emit(e.type);
-      } else if (['ui:sellTower', 'ui:upgradeTower', 'ui:targetMode', 'ui:toggleMute', 'ui:togglePause', 'ui:toggleAutoWave', 'ui:quitGame'].includes(e.type)) {
-          const customEvent = e as CustomEvent;
-          this.eventBus.emit(e.type, customEvent.detail);
-      }
+      const customEvent = e as CustomEvent;
+      this.eventBus.emit(e.type, customEvent.detail);
   }
 
   private sellTower(id: string, stateRef: any) {
@@ -171,8 +183,11 @@ export class GameEngine {
         
         const tx = t.col * this.cellSize + this.cellSize / 2;
         const ty = t.row * this.cellSize + this.cellSize / 2;
-        this.effectManager.spawnExplosion(tx, ty, '#ff00aa', 20);
-        this.effectManager.spawnFloatingText(tx, ty, `+${sellValue}`, '#ffaa00');
+        const theme = themes[stateRef.activeTheme as ThemeName];
+        const isLight = theme.isLight;
+        
+        this.effectManager.spawnExplosion(tx, ty, isLight ? '#db2777' : '#ff00aa', 20);
+        this.effectManager.spawnFloatingText(tx, ty, `+${sellValue}`, isLight ? '#b45309' : '#ffaa00');
         
         this.broadcastHudUpdate();
      }
@@ -196,8 +211,11 @@ export class GameEngine {
            
            const tx = t.col * this.cellSize + this.cellSize / 2;
            const ty = t.row * this.cellSize + this.cellSize / 2;
-           this.effectManager.spawnExplosion(tx, ty, '#00ffee', 15);
-           this.effectManager.spawnFloatingText(tx, ty, `UPGRADED`, '#00ffee');
+           const theme = themes[stateRef.activeTheme as ThemeName];
+           const isLight = theme.isLight;
+           
+           this.effectManager.spawnExplosion(tx, ty, isLight ? '#0891b2' : '#00ffee', 15);
+           this.effectManager.spawnFloatingText(tx, ty, `UPGRADED`, isLight ? '#0891b2' : '#00ffee');
            
            this.broadcastHudUpdate();
         } else {
@@ -216,9 +234,23 @@ export class GameEngine {
 
   public initMap(mapWidth: number, mapHeight: number, resetState: boolean = false) {
     if (mapWidth <= 0 || mapHeight <= 0) return;
-    const cols = Math.max(12, Math.floor(mapWidth / Math.max(this.cellSize, 1)));
-    const rows = Math.max(8, Math.floor(mapHeight / Math.max(this.cellSize, 1)));
-    this.grid = new Grid(cols, rows);
+    
+    // Calculate cellSize to fit COLS x ROWS into the given dimensions
+    const cellW = mapWidth / this.COLS;
+    const cellH = mapHeight / this.ROWS;
+    this.cellSize = Math.min(cellW, cellH);
+
+    const cols = this.COLS;
+    const rows = this.ROWS;
+    
+    const gridResized = this.grid.cols !== cols || this.grid.rows !== rows;
+
+    if (gridResized) {
+      this.grid = new Grid(cols, rows);
+    } else if (resetState) {
+      this.grid.init(cols, rows);
+    }
+
     this.entry = { col: 0, row: Math.floor(rows / 2) };
     this.exit = { col: cols - 1, row: Math.floor(rows / 2) };
     
@@ -226,6 +258,9 @@ export class GameEngine {
     this.grid.set(this.exit.col, this.exit.row, 'exit');
     
     this.path = this.pathfinder.findPath(this.grid, this.entry, this.exit) || [];
+
+    // Realign all active enemies to new cellSize
+    this.enemyManager.realignEnemiesToPath(this.path, this.cellSize);
     
     if (resetState) {
         // Only load level data if we are intentionally starting/restarting
@@ -258,13 +293,20 @@ export class GameEngine {
 
     this.isRunning = true;
     this.lastTime = performance.now();
+    this.accumulator = 0;
 
     const loop = (ts: number) => {
       if (!this.isRunning) return;
-      const dt = Math.min((ts - this.lastTime) / 1000, 0.1);
+      
+      const frameTime = Math.min((ts - this.lastTime) / 1000, 0.25); // Cap to 250ms to avoid spiral of death
       this.lastTime = ts;
+      this.accumulator += frameTime;
 
-      this.update(dt);
+      while (this.accumulator >= this.FIXED_DT) {
+        this.update(this.FIXED_DT);
+        this.accumulator -= this.FIXED_DT;
+      }
+
       this.renderer.render(ctx, this.buildRenderSnapshot(ts), logicalW, logicalH);
       
       this.rafId = requestAnimationFrame(loop);
@@ -300,17 +342,51 @@ export class GameEngine {
 
     const sidebarWidth = 180;
     const hudHeight = 48;
+    const mapW = this.canvasW - sidebarWidth;
+    const mapH = this.canvasH - hudHeight;
+    const gridW = this.COLS * this.cellSize;
+    const gridH = this.ROWS * this.cellSize;
+    
+    const offsetX = sidebarWidth + (mapW - gridW) / 2;
+    const offsetY = hudHeight + (mapH - gridH) / 2;
     
     const selectedType = stateRef.selectedTowerType;
 
-    if (x > sidebarWidth && y > hudHeight && type === 'click') {
-      const col = Math.floor((x - sidebarWidth) / this.cellSize);
-      const row = Math.floor((y - hudHeight) / this.cellSize);
+    if (x >= offsetX && x <= offsetX + gridW && y >= offsetY && y <= offsetY + gridH) {
+      const col = Math.floor((x - offsetX) / this.cellSize);
+      const row = Math.floor((y - offsetY) / this.cellSize);
 
-      if (!this.grid.isOutOfBounds(col, row)) {
-        const currentType = this.grid.get(col, row);
-        
-        if (currentType === 'empty') {
+      if (type === 'mousemove') {
+          if (!this.grid.isOutOfBounds(col, row)) {
+              if (this.hoveredCell?.col === col && this.hoveredCell?.row === row && this.lastPlacementSelectedType === selectedType) {
+                  return;
+              }
+              this.hoveredCell = { col, row };
+              this.lastPlacementSelectedType = selectedType;
+
+              if (selectedType) {
+                  const currentCell = this.grid.get(col, row);
+                  const hasEnemy = this.enemyManager.hasEnemyAt(col, row, this.cellSize);
+                  const config = towers[selectedType];
+                  this.placementValid = currentCell === 'empty' && 
+                                       !hasEnemy && 
+                                       this.state.gold >= config.cost &&
+                                       this.pathfinder.canPlaceTower(this.grid, col, row, this.entry, this.exit);
+              } else {
+                  this.placementValid = false;
+              }
+          } else {
+              this.hoveredCell = null;
+              this.placementValid = false;
+          }
+          return;
+      }
+
+      if (type === 'click') {
+          if (!this.grid.isOutOfBounds(col, row)) {
+            const currentType = this.grid.get(col, row);
+            
+            if (currentType === 'empty') {
           // Deselect existing if selected
           if (stateRef.selectedMapTower) {
              stateRef.setHudState({ selectedMapTower: null, selectedTowerInfo: null, selectedTowerType: null });
@@ -355,13 +431,16 @@ export class GameEngine {
       }
     }
   }
+}
 
   private update(dt: number) {
     if (this.state.phase !== 'playing' || this.state.isPaused) return;
 
     this.waveManager.update(dt, this.path[0] || this.entry, this.cellSize, this.state.autoWave);
     this.enemyManager.update(dt, this.path, this.cellSize, this.entry, this.exit);
-    this.towerManager.update(dt, this.enemyManager.enemies, this.cellSize, this.effectManager, this.soundManager);
+    
+    const theme = themes[useHudStore.getState().activeTheme as ThemeName];
+    this.towerManager.update(dt, this.enemyManager.enemies, this.cellSize, this.effectManager, this.soundManager, theme.isLight, this.enemyManager);
     this.effectManager.update(dt);
 
     // Update state wave number
@@ -373,52 +452,56 @@ export class GameEngine {
 
     // Process hits, kills, leaks
     let needsHudUpdate = false;
+    const enemies = this.enemyManager.enemies;
 
-    for (let i = this.enemyManager.enemies.length - 1; i >= 0; i--) {
-      const enemy = this.enemyManager.enemies[i];
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      const enemy = enemies[i];
       
       if (!enemy.active) {
         if (enemy.hp <= 0) {
-          // Killed
+          // Killed - Reward given here
           this.state.score += enemy.reward;
           this.state.gold += enemy.reward;
           needsHudUpdate = true;
           
-          this.effectManager.spawnExplosion(enemy.worldX, enemy.worldY, '#ff00aa', 15);
-          this.effectManager.spawnFloatingText(enemy.worldX, enemy.worldY, `+${enemy.reward}`, '#00ffaa');
+          const themeName = useHudStore.getState().activeTheme;
+          const theme = themes[themeName as ThemeName];
+          const isLight = theme.isLight;
+          
+          this.effectManager.spawnExplosion(enemy.worldX, enemy.worldY, isLight ? '#dc2626' : '#ff0055', 15);
+          this.effectManager.spawnFloatingText(enemy.worldX, enemy.worldY, `+${enemy.reward}`, isLight ? '#059669' : '#00ffaa');
           
           if (enemy.type === 'spawn') {
-             // Spawn 2 normal enemies at its position, with some spacing if possible 
-             // but since they just spawn, we can set progress/pathIndex
              for (let j = 0; j < 2; j++) {
-                // Actually easier to let EnemyManager spawn it and just copy its progress/pathIndex
-                // Let's add a spawnAt method or just push to enemies manually (we shouldn't do it here easily)
-                // wait, EnemyManager has spawn(). But it sets progress 0.
                 this.enemyManager.spawnAt('normal', enemy.worldX, enemy.worldY, enemy.pathIndex, Math.max(0, enemy.progress - j*0.05), enemy.maxHp / 2, Math.floor(enemy.reward / 2), enemy.speed * 1.2);
              }
           }
-          
-          this.enemyManager.enemies.splice(i, 1);
-        } else if (enemy.pathIndex >= this.path.length) {
+        } else if (enemy.pathIndex >= this.path.length || enemy.pathIndex === 9999) {
           // Reached exit
           const damage = enemy.type === 'boss' ? 3 : 1;
           this.state.lives = Math.max(0, this.state.lives - damage);
           needsHudUpdate = true;
-          this.enemyManager.enemies.splice(i, 1);
+          this.soundManager.playError(); // play leak sound
           
           if (this.state.lives <= 0) {
+            this.state.lives = 0;
             this.state.phase = 'gameover';
-            this.eventBus.emit('game:over', { score: this.state.score, wave: this.state.currentWave, reason: 'lives' });
+            const finalScore = this.calculateFinalScore();
+            this.eventBus.emit('game:over', { score: finalScore, wave: this.state.currentWave, reason: 'lives' });
             this.broadcastHudUpdate();
           }
         }
+        
+        // Return to pool instead of splice
+        this.enemyManager.release(enemy);
       }
     }
     
     // Check win condition
     if (this.waveManager.isAllWavesSpawned() && this.enemyManager.getActiveEnemies().length === 0 && this.state.phase === 'playing') {
        this.state.phase = 'waveComplete';
-       this.eventBus.emit('game:over', { score: this.state.score, wave: this.state.currentWave, reason: 'win' });
+       const finalScore = this.calculateFinalScore();
+       this.eventBus.emit('game:over', { score: finalScore, wave: this.state.currentWave, reason: 'win' });
        needsHudUpdate = true;
     }
 
@@ -427,7 +510,28 @@ export class GameEngine {
     }
   }
 
+  private calculateFinalScore(): number {
+    // Score Formula: W*1000 + (L*500) + (S/10) + (G/5)
+    // weights: waves(0.4), lives(0.2), basic score(0.3), gold(0.1)
+    const waveBonus = this.state.currentWave * 1000;
+    const lBonus = this.state.lives * 500;
+    const diversityBonus = this.towerManager.towers.length * 200;
+    
+    return Math.floor(this.state.score + waveBonus + lBonus + diversityBonus);
+  }
+
   private broadcastHudUpdate() {
+    const storeState = useHudStore.getState();
+    let selectedTowerInfo = storeState.selectedTowerInfo;
+
+    // If a tower is selected, update its info from the actual tower state
+    if (storeState.selectedMapTower) {
+      const actualTower = this.towerManager.towers.find(t => t.id === storeState.selectedMapTower);
+      if (actualTower) {
+        selectedTowerInfo = { ...actualTower };
+      }
+    }
+
     this.eventBus.emit('hud:update', {
       lives: this.state.lives,
       gold: this.state.gold,
@@ -436,6 +540,8 @@ export class GameEngine {
       waveMax: this.state.totalWaves,
       enemiesLeft: this.enemyManager.getActiveEnemies().length,
       gamePhase: this.state.phase,
+      selectedTowerInfo: selectedTowerInfo,
+      activeSpawning: this.waveManager.getActiveSpawningTypes(),
     });
   }
 
@@ -449,10 +555,10 @@ export class GameEngine {
       projectiles: this.towerManager.getActiveProjectiles(),
       floatingTexts: this.effectManager.floatingTexts,
       particles: this.effectManager.particles,
-      hoveredCell: null,
+      hoveredCell: this.hoveredCell,
       selectedTowerId: state.selectedMapTower,
       selectedTowerTypePreview: state.selectedTowerType,
-      placementValid: true,
+      placementValid: this.placementValid,
       entry: this.entry,
       exit: this.exit,
       cellSize: this.cellSize,

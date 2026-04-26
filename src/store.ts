@@ -16,6 +16,7 @@ export interface HudState {
   activeTheme: ThemeName;
   soundMuted: boolean;
   autoWave: boolean;
+  activeSpawning: EnemyType[];
   highScore: number;
   timesPlayed: number;
 }
@@ -40,6 +41,7 @@ export const useHudStore = create<HudStore>((set) => ({
   activeTheme: 'desktop',
   soundMuted: false,
   autoWave: false,
+  activeSpawning: [],
   highScore: parseInt(localStorage.getItem('dd_highScore') || '0'),
   timesPlayed: parseInt(localStorage.getItem('dd_timesPlayed') || '0'),
   setHudState: (partial) => set((state) => ({ ...state, ...partial })),

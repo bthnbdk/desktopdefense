@@ -35,36 +35,62 @@ export class WaveManager {
     this.prewaveTimer = this.waves[0].prewaveDelayMs / 1000;
   }
 
+  private getHPMultiplier(wave: number): number {
+    if (wave <= 30) {
+      return Math.pow(1.18, wave - 1);
+    } else if (wave <= 80) {
+      const hp30 = Math.pow(1.18, 29);
+      return hp30 * (1 + 0.08 * Math.log(wave - 29));
+    } else {
+      const hp80 = Math.pow(1.18, 29) * (1 + 0.08 * Math.log(51));
+      return hp80 + 12 * (wave - 80);
+    }
+  }
+
+  private getGoldReward(wave: number, base: number): number {
+    // Wave 1: ~10 gold per enemy. Wave 50: ~100 gold
+    const reward = Math.floor(8 + wave * 2);
+    return reward;
+  }
+
   private generateInfiniteWave(index: number) {
       const waveNumber = index + 1;
-      // Mathematical Balancing for Infinite Scaling
-      // Enemy HP factor: 25% more HP per wave
-      const hpMult = Math.pow(1.25, waveNumber - 1);
-      // Speed scales very slightly, capped at 2.5x base mapping
-      const speedMult = Math.min(Math.pow(1.02, waveNumber - 1), 2.5);
+      const hpMult = this.getHPMultiplier(waveNumber);
       
-      const count = 10 + Math.floor(waveNumber * 1.5);
+      // Revised Speed: Logarithmic ramp
+      const speedMult = 1 + Math.log2(1 + (waveNumber - 1) / 10);
+      const finalSpeedMult = Math.min(speedMult, 2.5);
+      
+      const count = 10 + Math.floor(waveNumber * 1.2);
       
       const types: EnemyType[] = ['normal'];
       if (waveNumber >= 3) types.push('fast');
       if (waveNumber >= 5) types.push('flying', 'immune');
       if (waveNumber >= 8) types.push('spawn');
-      if (waveNumber % 5 === 0) types.push('boss'); // Boss every 5 waves
+      
+      const isBossWave = waveNumber % 10 === 0;
+      if (isBossWave) types.push('boss');
       
       const waveGroups = [];
-      const numGroups = 1 + Math.floor(waveNumber / 4);
+      const numGroups = 1 + Math.floor(waveNumber / 8);
       
       for (let i = 0; i < numGroups; i++) {
           const type = types[Math.floor(Math.random() * types.length)];
-          let gCount = Math.floor(count / numGroups);
-          if (type === 'boss') gCount = 1 + Math.floor(waveNumber / 10);
+          let gCount = Math.max(1, Math.floor(count / numGroups));
+          
+          let gHpMult = hpMult;
+
+          if (type === 'boss') {
+              gCount = 1;
+              gHpMult *= 6;
+          }
           
           waveGroups.push({
               type,
-              count: max(1, gCount),
-              intervalMs: Math.max(300, 1000 - waveNumber * 20),
-              hpMultiplier: hpMult,
-              speedMultiplier: speedMult
+              count: gCount,
+              intervalMs: Math.max(250, 1000 - waveNumber * 15),
+              hpMultiplier: gHpMult,
+              speedMultiplier: finalSpeedMult
           });
       }
       
@@ -161,31 +187,29 @@ export class WaveManager {
     
     let baseHp = 100 * hpMult;
     let baseSpeed = 50 * speedMult;
-    
-    // Reward scales so gold growth balances with cost scaling
-    // baseReward * 1.2^wave
-    let baseReward = 8 * Math.pow(1.2, waveNumber - 1);
+
+    let baseReward = this.getGoldReward(waveNumber, 1);
     
     if (type === 'fast') { baseHp *= 0.4; baseSpeed *= 2.5; }
-    if (type === 'boss') { baseHp *= 5; baseSpeed *= 0.6; baseReward *= 4; }
-    if (type === 'immune') { baseHp *= 1.2; baseSpeed *= 1.1; baseReward *= 1.5; }
-    if (type === 'spawn') { baseHp *= 2; baseReward *= 2; }
-    if (type === 'flying') { baseHp *= 0.8; baseSpeed *= 1.2; }
+    else if (type === 'boss') { baseHp *= 5; baseSpeed *= 0.6; baseReward *= 4; }
+    else if (type === 'immune') { baseHp *= 1.2; baseSpeed *= 1.1; baseReward *= 1.5; }
+    else if (type === 'spawn') { baseHp *= 2; baseReward *= 2; }
+    else if (type === 'flying') { baseHp *= 0.8; baseSpeed *= 1.2; }
+    else if (type === 'group') {
+        // Instead of immediate spawning with timeout, we create a sub-group
+        this.activeGroups.push({
+            type: 'fast',
+            remaining: 3,
+            intervalMax: 0.3,
+            intervalTimer: 0.3,
+            hpMultiplier: hpMult * 0.3,
+            speedMultiplier: speedMult * 1.8
+        });
+        return; // Don't spawn the 'group' dummy enemy
+    }
     
     const reward = Math.max(1, Math.floor(baseReward));
-
-    if (type === 'group') {
-        baseHp *= 0.3;
-        baseSpeed *= 1.8;
-        const gReward = Math.max(1, Math.floor(reward * 0.4));
-        for (let i = 0; i < 3; i++) {
-           setTimeout(() => {
-              this.enemyManager.spawn('fast', startX, startY, baseHp, gReward, baseSpeed);
-           }, i * 300);
-        }
-    } else {
-        this.enemyManager.spawn(type, startX, startY, baseHp, reward, baseSpeed);
-    }
+    this.enemyManager.spawn(type, startX, startY, baseHp, reward, baseSpeed);
   }
 
   public isAllWavesSpawned() {
@@ -195,6 +219,14 @@ export class WaveManager {
   public getCurrentWaveNumber() {
       if (this.waves.length === 0) return 1;
       return this.waves[Math.min(this.currentWaveIndex, this.waves.length-1)].waveNumber;
+  }
+
+  public getActiveSpawningTypes(): EnemyType[] {
+    const types = new Set<EnemyType>();
+    for (const g of this.activeGroups) {
+      types.add(g.type);
+    }
+    return Array.from(types);
   }
 }
 function max(a: number, b: number): number {

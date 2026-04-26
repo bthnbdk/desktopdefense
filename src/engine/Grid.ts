@@ -4,6 +4,7 @@ export class Grid {
   public cells: CellType[][] = [];
   public cols: number = 0;
   public rows: number = 0;
+  public version: number = 0;
 
   constructor(cols: number, rows: number) {
     this.init(cols, rows);
@@ -13,6 +14,7 @@ export class Grid {
     this.cols = cols;
     this.rows = rows;
     this.cells = Array.from({ length: cols }, () => Array(rows).fill('empty'));
+    this.version++;
   }
 
   public get(col: number, row: number): CellType {
@@ -23,9 +25,20 @@ export class Grid {
   public set(col: number, row: number, type: CellType) {
     if (this.isOutOfBounds(col, row)) return;
     this.cells[col][row] = type;
+    this.version++;
   }
 
   public isOutOfBounds(col: number, row: number): boolean {
     return col < 0 || row < 0 || col >= this.cols || row >= this.rows;
+  }
+
+  public clearTactical() {
+    for (let c = 0; c < this.cols; c++) {
+      for (let r = 0; r < this.rows; r++) {
+        if (this.cells[c][r] === 'tower') {
+          this.cells[c][r] = 'empty';
+        }
+      }
+    }
   }
 }

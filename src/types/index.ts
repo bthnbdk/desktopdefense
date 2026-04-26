@@ -2,7 +2,7 @@ export type CellType = 'empty' | 'tower' | 'pathHint' | 'entry' | 'exit';
 export type EnemyType = 'normal' | 'fast' | 'boss' | 'group' | 'immune' | 'spawn' | 'flying';
 export type TowerType = 'pellet' | 'splash' | 'slow' | 'sniper' | 'chain' | 'mortar';
 export type TargetMode = 'first' | 'last' | 'strongest' | 'closest';
-export type ThemeName = 'desktop' | 'neonVoid' | 'synthwave' | 'matrix' | 'arctic' | 'lava' | 'monochrome';
+export type ThemeName = 'desktop' | 'neonVoid' | 'synthwave' | 'matrix' | 'arctic' | 'lava' | 'monochrome' | 'softLight' | 'frost' | 'papyrus' | 'mint';
 export type TowerId = string;
 export type GamePhase = 'menu' | 'levelSelect' | 'playing' | 'paused' | 'gameover' | 'waveComplete';
 
@@ -24,6 +24,9 @@ export interface Enemy {
   slowTimer: number;
   slowAmount: number;
   active: boolean;
+  movementType: 'ground' | 'flying';
+  phase?: 1 | 2 | 3;
+  armored?: boolean;
 }
 
 export interface Tower {
@@ -132,6 +135,8 @@ export interface Theme {
   panelBg: string;
   enemyColors: Record<EnemyType, string>;
   towerColors: Record<TowerType, string>;
+  isLight?: boolean;
+  accentContrast?: string;
 }
 
 export interface GameState {
