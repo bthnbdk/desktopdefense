@@ -92,22 +92,20 @@ export class GameRenderer {
       const color = placementValid ? theme.accentPrimary : '#EF4444';
       const config = towers[selectedTowerTypePreview];
 
-      // Highlight the snap cell
+      // Cell background — green tint if valid, red if blocked
       ctx.save();
-      ctx.fillStyle = color + '18';
+      ctx.fillStyle = placementValid ? (color + '18') : 'rgba(239,68,68,0.25)';
       ctx.fillRect(hoveredCell.col * cellSize, hoveredCell.row * cellSize, cellSize, cellSize);
-      ctx.strokeStyle = color + '55';
+      ctx.strokeStyle = placementValid ? (color + '55') : 'rgba(239,68,68,0.7)';
       ctx.lineWidth = 1;
       ctx.strokeRect(hoveredCell.col * cellSize, hoveredCell.row * cellSize, cellSize, cellSize);
       ctx.restore();
 
-      // Tower ghost following cursor
-      const previewX = mouseWorldX || cx;
-      const previewY = mouseWorldY || cy;
+      // Tower ghost snapped to cell center
       ctx.save();
-      ctx.globalAlpha = 0.6;
-      const cached = this.getCachedTower(selectedTowerTypePreview, color, cellSize * 0.45, theme.isLight);
-      ctx.drawImage(cached, previewX - cellSize * 0.45, previewY - cellSize * 0.45, cellSize * 0.9, cellSize * 0.9);
+      ctx.globalAlpha = 0.65;
+      const cached = this.getCachedTower(selectedTowerTypePreview, color, cellSize * 0.48, theme.isLight);
+      ctx.drawImage(cached, cx - cellSize * 0.48, cy - cellSize * 0.48, cellSize * 0.96, cellSize * 0.96);
       ctx.restore();
 
       // Range ring around snap cell
@@ -121,19 +119,6 @@ export class GameRenderer {
       ctx.lineWidth = 1;
       ctx.stroke();
       ctx.restore();
-
-      // Fine dashed line from cursor to snap point
-      if (mouseWorldX && mouseWorldY && (Math.abs(mouseWorldX - cx) > 2 || Math.abs(mouseWorldY - cy) > 2)) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.setLineDash([2, 4]);
-        ctx.moveTo(previewX, previewY);
-        ctx.lineTo(cx, cy);
-        ctx.strokeStyle = color + '33';
-        ctx.lineWidth = 0.5;
-        ctx.stroke();
-        ctx.restore();
-      }
     }
 
     // 5. Draw towers

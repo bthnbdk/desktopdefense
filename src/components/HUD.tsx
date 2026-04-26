@@ -67,7 +67,6 @@ export const HUD: React.FC = () => {
             className="font-black italic pr-6 cursor-pointer hover:opacity-70 transition-all flex items-center gap-1 group"
         >
             <span className="text-xl tracking-tighter uppercase group-hover:text-[var(--accent-primary)] transition-colors">DESKTOPDEFENSE</span>
-            <span className="text-[10px] opacity-40 font-normal not-italic tracking-widest mt-1">v2.0</span>
         </div>
         
            <div className="flex items-center gap-6 py-1 px-4 border-l border-[var(--border-color)]">
