@@ -1,0 +1,102 @@
+import { Theme } from '../types';
+
+export const themes: Record<string, Theme> = {
+  desktop: {
+    name: 'Desktop',
+    bg: '#f0ede4',
+    gridLine: '#d8d4c7',
+    pathFill: '#d8d4c7',
+    emptyCellFill: '#fdfbf7',
+    accentPrimary: '#1a5f7a',
+    accentSecondary: '#576f72',
+    hudBg: '#fffcf0',
+    hudText: '#2c3639',
+    panelBg: '#fffcf0',
+    enemyColors: { normal: '#e11d48', fast: '#ea580c', boss: '#9f1239', group: '#be185d', immune: '#475569', spawn: '#c026d3', flying: '#6d28d9' },
+    towerColors: { pellet: '#1a5f7a', splash: '#a1c298', slow: '#f7d060', sniper: '#404258', chain: '#ff8787', mortar: '#6d28d9' }
+  },
+  neonVoid: {
+    name: 'Neon Void',
+    bg: '#05040a',
+    gridLine: '#101020',
+    pathFill: '#0a0a1a',
+    emptyCellFill: '#030206',
+    accentPrimary: '#00ffee',
+    accentSecondary: '#ff00aa',
+    hudBg: '#000000',
+    hudText: '#00ffee',
+    panelBg: '#090812',
+    enemyColors: { normal: '#ff3366', fast: '#ff6633', boss: '#ff0000', group: '#ff88aa', immune: '#ddddff', spawn: '#cc0055', flying: '#ff00ff' },
+    towerColors: { pellet: '#00ffee', splash: '#00ffaa', slow: '#0055ff', sniper: '#ffffff', chain: '#ffff00', mortar: '#00aaff' }
+  },
+  synthwave: {
+    name: 'Synthwave',
+    bg: '#1a0b2e',
+    gridLine: '#2d1b4e',
+    pathFill: '#241242',
+    emptyCellFill: '#150826',
+    accentPrimary: '#00ffcc',
+    accentSecondary: '#ff9900',
+    hudBg: '#0d041a',
+    hudText: '#00ffcc',
+    panelBg: '#200e3a',
+    enemyColors: { normal: '#ff0055', fast: '#ff3300', boss: '#aa0000', group: '#ff2277', immune: '#ffdd00', spawn: '#880022', flying: '#ff00aa' },
+    towerColors: { pellet: '#00ffcc', splash: '#00ccff', slow: '#9900ff', sniper: '#ffffff', chain: '#00ff55', mortar: '#8800ff' }
+  },
+  matrix: {
+    name: 'Matrix',
+    bg: '#000000',
+    gridLine: '#003300',
+    pathFill: '#001a00',
+    emptyCellFill: '#000000',
+    accentPrimary: '#00ff00',
+    accentSecondary: '#008800',
+    hudBg: '#000000',
+    hudText: '#00ff00',
+    panelBg: '#001100',
+    enemyColors: { normal: '#ff0000', fast: '#ffaa00', boss: '#cc0000', group: '#ff5555', immune: '#bbbbbb', spawn: '#880000', flying: '#ff00ff' },
+    towerColors: { pellet: '#00ff00', splash: '#00cc00', slow: '#0055ff', sniper: '#ffffff', chain: '#00ffff', mortar: '#55ff55' }
+  },
+  arctic: {
+    name: 'Arctic',
+    bg: '#001122',
+    gridLine: '#002244',
+    pathFill: '#001a33',
+    emptyCellFill: '#000a14',
+    accentPrimary: '#00ccff',
+    accentSecondary: '#ffffff',
+    hudBg: '#000000',
+    hudText: '#00ccff',
+    panelBg: '#001933',
+    enemyColors: { normal: '#ff5533', fast: '#ffaa33', boss: '#ff0000', group: '#ff77aa', immune: '#aaaaaa', spawn: '#cc3300', flying: '#ff00ff' },
+    towerColors: { pellet: '#00ccff', splash: '#ffffff', slow: '#0055aa', sniper: '#00ff00', chain: '#00ffff', mortar: '#5555ff' }
+  },
+  lava: {
+    name: 'Lava',
+    bg: '#220000',
+    gridLine: '#440000',
+    pathFill: '#330000',
+    emptyCellFill: '#1a0000',
+    accentPrimary: '#ff5500',
+    accentSecondary: '#ffcc00',
+    hudBg: '#000000',
+    hudText: '#ff5500',
+    panelBg: '#2a0000',
+    enemyColors: { normal: '#ff5500', fast: '#ffcc00', boss: '#ff0000', group: '#ff8800', immune: '#ffffff', spawn: '#555555', flying: '#00ffff' },
+    towerColors: { pellet: '#ff5500', splash: '#ffcc00', slow: '#aa0000', sniper: '#ffffff', chain: '#ffff00', mortar: '#ff0000' }
+  },
+  monochrome: {
+    name: 'Monochrome',
+    bg: '#000000',
+    gridLine: '#333333',
+    pathFill: '#1a1a1a',
+    emptyCellFill: '#000000',
+    accentPrimary: '#ffffff',
+    accentSecondary: '#aaaaaa',
+    hudBg: '#000000',
+    hudText: '#ffffff',
+    panelBg: '#111111',
+    enemyColors: { normal: '#ffffff', fast: '#cccccc', boss: '#888888', group: '#eeeeee', immune: '#555555', spawn: '#444444', flying: '#999999' },
+    towerColors: { pellet: '#ffffff', splash: '#dddddd', slow: '#aaaaaa', sniper: '#cccccc', chain: '#eeeeee', mortar: '#777777' }
+  }
+};

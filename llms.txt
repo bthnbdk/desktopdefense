@@ -1,0 +1,14 @@
+# Desktop Defense
+
+Desktop Defense is a high-octane tower defense game playable in your browser. 
+Protect your core from waves of enemies using strategic tower placement and upgrades.
+
+## Game Features
+- Multiple tactical tower types (Pellet, Splash, Slow, Sniper, Chain, Mortar)
+- Diverse themes and aesthetics
+- Challenging wave-based gameplay
+- High score tracking
+- Fully responsive design
+
+## Play Online
+https://ais-dev-iy5apwfatxb2xsu3an4ttt-249890604195.europe-west1.run.app
