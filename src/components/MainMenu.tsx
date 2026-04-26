@@ -2,6 +2,7 @@ import React from 'react';
 import { useHudStore } from '../store';
 import { ThemeName, TowerType } from '../types';
 import { TowerGraphic } from './TowerGraphic';
+import { MenuBackground } from './MenuBackground';
 
 export const MainMenu: React.FC = () => {
   const { gamePhase, activeTheme, setHudState, highScore, isPaused } = useHudStore();
@@ -25,6 +26,7 @@ export const MainMenu: React.FC = () => {
          backgroundImage: 'radial-gradient(var(--grid-line) 1px, transparent 1px)',
          backgroundSize: '40px 40px'
       }} />
+      <MenuBackground />
 
       <div className="relative border-t-2 p-12 rounded shadow-2xl backdrop-blur-md panel-glass max-w-lg w-full" 
            style={{ borderColor: 'var(--accent-primary)' }}>
