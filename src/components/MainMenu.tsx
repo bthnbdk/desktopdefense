@@ -14,6 +14,7 @@ export const MainMenu: React.FC = () => {
         window.dispatchEvent(new CustomEvent('ui:startGame', { detail: { stateRef: useHudStore.getState() } }));
     } else {
         setHudState({ gamePhase: 'playing', isPaused: false });
+        window.dispatchEvent(new CustomEvent('ui:togglePause', { detail: { isPaused: false, stateRef: useHudStore.getState() } }));
     }
   };
 
