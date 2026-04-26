@@ -162,6 +162,8 @@ export interface RenderSnapshot {
   floatingTexts: FloatingText[];
   particles: Particle[];
   hoveredCell: Point | null;
+  mouseWorldX: number;
+  mouseWorldY: number;
   selectedTowerId: TowerId | null;
   selectedTowerTypePreview: TowerType | null;
   placementValid: boolean;

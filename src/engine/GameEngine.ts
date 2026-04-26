@@ -37,6 +37,8 @@ export class GameEngine {
   private entry: Point = { col: 0, row: 0 };
   private exit: Point = { col: 0, row: 0 };
   private hoveredCell: Point | null = null;
+  private mouseWorldX: number = 0;
+  private mouseWorldY: number = 0;
   private lastPlacementSelectedType: string | null = null;
   private placementValid: boolean = false;
 
@@ -357,6 +359,9 @@ export class GameEngine {
       const row = Math.floor((y - offsetY) / this.cellSize);
 
       if (type === 'mousemove') {
+          // Track raw mouse position for cursor-following preview
+          this.mouseWorldX = x;
+          this.mouseWorldY = y;
           if (!this.grid.isOutOfBounds(col, row)) {
               if (this.hoveredCell?.col === col && this.hoveredCell?.row === row && this.lastPlacementSelectedType === selectedType) {
                   return;
@@ -556,6 +561,8 @@ export class GameEngine {
       floatingTexts: this.effectManager.floatingTexts,
       particles: this.effectManager.particles,
       hoveredCell: this.hoveredCell,
+      mouseWorldX: this.mouseWorldX,
+      mouseWorldY: this.mouseWorldY,
       selectedTowerId: state.selectedMapTower,
       selectedTowerTypePreview: state.selectedTowerType,
       placementValid: this.placementValid,
