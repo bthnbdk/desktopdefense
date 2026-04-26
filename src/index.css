@@ -4,6 +4,21 @@
 @theme {
   --font-sans: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* CORE GAME COLORS (balanced for long play sessions) */
+  --bg-primary: #0a0f1a;
+  --bg-secondary: #121a2a;
+
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+
+  --accent-primary: #38bdf8;
+  --accent-secondary: #22c55e;
+
+  --danger: #ef4444;
+  --warning: #f59e0b;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
 }
 
 :root {
@@ -14,23 +29,27 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #000;
-  color: #fff;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   overflow: hidden;
 }
 
+/* CRITICAL: improves grid readability subtly */
 canvas {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  filter: contrast(1.05) brightness(1.05);
 }
 
 .glow-text {
-  text-shadow: 0 0 10px var(--accent-primary);
+  text-shadow: 0 0 8px var(--accent-primary);
 }
 
+/* MUCH better panel separation */
 .panel-glass {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(18, 26, 42, 0.78);
   backdrop-filter: blur(var(--panel-blur));
   -webkit-backdrop-filter: blur(var(--panel-blur));
+  border: 1px solid var(--border-subtle);
 }
