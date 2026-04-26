@@ -59,8 +59,4 @@
     TACTICAL PERIMETER SECURITY SYSTEM
   </text>
 
-  <!-- URL -->
-  <text x="600" y="570" font-family="monospace" font-size="22" fill="#475569" text-anchor="middle" letter-spacing="4">
-    DESKTOPDEFENSE.NET
-  </text>
 </svg>
