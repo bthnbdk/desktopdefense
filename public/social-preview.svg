@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0F172A"/>
+      <stop offset="100%" style="stop-color:#1E293B"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#38BDF8"/>
+      <stop offset="100%" style="stop-color:#818CF8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Grid pattern -->
+  <g opacity="0.06">
+    <line x1="0" y1="0" x2="1200" y2="0" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="40" x2="1200" y2="40" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="80" x2="1200" y2="80" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="120" x2="1200" y2="120" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="160" x2="1200" y2="160" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="200" x2="1200" y2="200" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="240" x2="1200" y2="240" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="280" x2="1200" y2="280" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="320" x2="1200" y2="320" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="360" x2="1200" y2="360" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="400" x2="1200" y2="400" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="440" x2="1200" y2="440" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="480" x2="1200" y2="480" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="520" x2="1200" y2="520" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="560" x2="1200" y2="560" stroke="#38BDF8" stroke-width="1"/>
+    <line x1="0" y1="600" x2="1200" y2="600" stroke="#38BDF8" stroke-width="1"/>
+  </g>
+
+  <!-- Tower silhouettes -->
+  <g transform="translate(80, 370)" opacity="0.08">
+    <rect x="0" y="-40" width="50" height="50" rx="4" fill="#38BDF8"/>
+    <circle cx="110" cy="-15" r="28" fill="#22C55E"/>
+    <polygon points="195,-50 230,25 160,25" fill="#EAB308"/>
+    <polygon points="290,20 270,-40 310,-40" fill="#F8FAFC"/>
+  </g>
+
+  <!-- Circle decoration -->
+  <circle cx="180" cy="500" r="120" fill="none" stroke="#38BDF8" stroke-width="2" opacity="0.15"/>
+  <circle cx="180" cy="500" r="80" fill="none" stroke="#38BDF8" stroke-width="1" opacity="0.1"/>
+  <circle cx="1050" cy="120" r="80" fill="none" stroke="#818CF8" stroke-width="1" opacity="0.1"/>
+
+  <!-- Title -->
+  <text x="600" y="220" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="96" font-weight="900" font-style="italic" fill="#F8FAFC" text-anchor="middle" letter-spacing="-3">
+    DESKTOP
+  </text>
+  <text x="600" y="310" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="96" font-weight="900" font-style="italic" fill="url(#accent)" text-anchor="middle" letter-spacing="-3">
+    DEFENSE
+  </text>
+
+  <!-- Tagline -->
+  <text x="600" y="380" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="24" font-weight="600" fill="#94A3B8" text-anchor="middle" letter-spacing="8">
+    TACTICAL PERIMETER SECURITY SYSTEM
+  </text>
+
+  <!-- URL -->
+  <text x="600" y="570" font-family="monospace" font-size="22" fill="#475569" text-anchor="middle" letter-spacing="4">
+    DESKTOPDEFENSE.NET
+  </text>
+</svg>

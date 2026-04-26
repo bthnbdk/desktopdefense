@@ -1,6 +1,15 @@
 {
   "name": "Desktop Defense V2",
   "description": "Tactical desktop defense system featuring multi-tier tower upgrades, advanced pathfinding analytics, and scalable perimeter security protocols.",
+  "version": "2.0.0",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": [
+    "Tower placement and upgrading",
+    "Six tower types with unique mechanics",
+    "Infinite wave scaling",
+    "11 visual themes",
+    "A* pathfinding with spatial partitioning",
+    "Web Audio API synthesized sound",
+    "Canvas-based rendering with offscreen caching"
+  ]
 }

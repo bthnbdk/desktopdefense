@@ -50,11 +50,11 @@ export const MainMenu: React.FC = () => {
         </div>
         
         <div className="mb-8 p-4 bg-[var(--border-color)] border border-[var(--border-color)] rounded-sm">
-            <h3 className="text-[10px] font-mono font-bold uppercase tracking-widest mb-3 border-b border-[var(--border-color)] pb-1" style={{ color: 'var(--text-dim)' }}>Protocols & Operations</h3>
+            <h3 className="text-[10px] font-mono font-bold uppercase tracking-widest mb-3 border-b border-[var(--border-color)] pb-1" style={{ color: 'var(--text-dim)' }}>How to Play</h3>
             <ul className="text-[10px] font-mono space-y-2" style={{ color: 'var(--text-bright)' }}>
-                <li className="flex gap-2"><span className="text-[var(--accent-primary)]">01</span> Select hardware from terminal (LEFT) and deploy to grid.</li>
-                <li className="flex gap-2"><span className="text-[var(--accent-primary)]">02</span> Reconfigure active nodes (CLICK) for optimal throughput.</li>
-                <li className="flex gap-2"><span className="text-[var(--accent-primary)]">03</span> Prevent unauthorized data breach at all costs.</li>
+                <li className="flex gap-2"><span className="text-[var(--accent-primary)]">01</span> Pick a tower from the left panel and click an empty cell to place it.</li>
+                <li className="flex gap-2"><span className="text-[var(--accent-primary)]">02</span> Click any placed tower to upgrade, sell, or switch targeting mode.</li>
+                <li className="flex gap-2"><span className="text-[var(--accent-primary)]">03</span> Stop every enemy from reaching the exit — or it's game over.</li>
             </ul>
         </div>
         
@@ -78,6 +78,10 @@ export const MainMenu: React.FC = () => {
         </div>
 
         <div className="mt-8 border-t border-[var(--border-color)] pt-4">
+           <div className="text-[9px] mb-4 font-mono text-center" style={{ color: 'var(--text-dim)' }}>
+             vibecoded by{' '}
+             <a href="https://twitter.com/@bthnbdk" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent-primary)] transition-colors underline underline-offset-2" style={{ color: 'var(--accent-primary)' }}>@bthnbdk</a>
+           </div>
            <div className="text-[10px] mb-4 font-mono font-bold text-center tracking-widest uppercase" style={{ color: 'var(--text-dim)' }}>System Theme Selection</div>
            <div className="grid grid-cols-4 gap-1">
               {themes.map(t => (

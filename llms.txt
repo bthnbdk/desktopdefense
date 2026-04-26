@@ -11,4 +11,4 @@ Protect your core from waves of enemies using strategic tower placement and upgr
 - Fully responsive design
 
 ## Play Online
-https://ais-dev-iy5apwfatxb2xsu3an4ttt-249890604195.europe-west1.run.app
+https://desktopdefense.netlify.app
