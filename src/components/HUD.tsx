@@ -59,8 +59,11 @@ export const HUD: React.FC = () => {
   return (
     <div className="absolute top-0 left-0 w-full h-[48px] px-4 flex items-center justify-between font-mono pointer-events-none border-b border-[var(--border-color)] z-50 panel-glass" style={{ color: 'var(--hud-text)' }}>
       <div className="flex gap-6 pointer-events-auto items-center">
-        <div 
-            onClick={() => setHudState({ gamePhase: 'menu' })}
+        <div
+            onClick={() => {
+              setHudState({ gamePhase: 'menu', isPaused: true });
+              window.dispatchEvent(new CustomEvent('ui:togglePause', { detail: { isPaused: true, stateRef: useHudStore.getState() } }));
+            }}
             className="font-black italic pr-6 cursor-pointer hover:opacity-70 transition-all flex items-center gap-1 group"
         >
             <span className="text-xl tracking-tighter uppercase group-hover:text-[var(--accent-primary)] transition-colors">DESKTOPDEFENSE</span>

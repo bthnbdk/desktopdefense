@@ -59,22 +59,32 @@ export const MainMenu: React.FC = () => {
         </div>
         
         <div className="flex flex-col gap-3 w-full">
-           {isPaused && (
-           <button 
-             onClick={() => handleStart(true)}
-             className="px-8 py-3 font-mono font-bold transition-all text-sm uppercase tracking-[0.2em] border border-[var(--border-color)] hover:border-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10"
-             style={{ color: 'var(--hud-text)' }}
-           >
-             RESUME DEPLOYMENT
-           </button>
+           {isPaused ? (
+             <>
+               <button
+                 onClick={() => handleStart(true)}
+                 className="px-8 py-4 font-mono font-bold transition-all text-sm uppercase tracking-[0.3em] bg-[var(--accent-primary)] hover:brightness-110 active:scale-95"
+                 style={{ color: 'var(--accent-contrast)' }}
+               >
+                 CONTINUE GAME
+               </button>
+               <button
+                 onClick={() => handleStart(false)}
+                 className="px-8 py-3 font-mono font-bold transition-all text-xs uppercase tracking-[0.2em] border border-[var(--border-color)] hover:border-red-500 hover:text-red-500"
+                 style={{ color: 'var(--text-dim)' }}
+               >
+                 NEW GAME
+               </button>
+             </>
+           ) : (
+             <button
+               onClick={() => handleStart(false)}
+               className="px-8 py-4 font-mono font-bold transition-all text-sm uppercase tracking-[0.3em] bg-[var(--accent-primary)]"
+               style={{ color: 'var(--accent-contrast)' }}
+             >
+               START GAME
+             </button>
            )}
-           <button 
-             onClick={() => handleStart(false)}
-             className="px-8 py-4 font-mono font-bold transition-all text-sm uppercase tracking-[0.3em] bg-[var(--accent-primary)]"
-             style={{ color: 'var(--accent-contrast)' }}
-           >
-             {isPaused ? 'RESTART GAME' : 'START GAME'}
-           </button>
         </div>
 
         <div className="mt-8 border-t border-[var(--border-color)] pt-4">
