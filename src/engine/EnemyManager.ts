@@ -111,7 +111,6 @@ export class EnemyManager {
         const segDy = p2Y - p1Y;
         const segLenSq = segDx * segDx + segDy * segDy;
 
-        // Project enemy position onto segment, clamp to [0,1]
         let t = 0;
         if (segLenSq > 0) {
           t = ((enemy.worldX - p1X) * segDx + (enemy.worldY - p1Y) * segDy) / segLenSq;
@@ -131,18 +130,8 @@ export class EnemyManager {
         }
       }
 
-      // Snap enemy to the closest point on the new path.
-      // Path-derived movement then guarantees the enemy stays within
-      // tower-free cells — every frame's position is interpolated between
-      // adjacent path points that A* verified as safe.
-      const bp1 = path[bestSegIndex];
-      const bp2 = path[bestSegIndex + 1];
-      const bpx = bp1.col * cellSize + hcs;
-      const bpy = bp1.row * cellSize + hcs;
-      const bdx = (bp2.col * cellSize + hcs) - bpx;
-      const bdy = (bp2.row * cellSize + hcs) - bpy;
-      enemy.worldX = bpx + bdx * bestProgress;
-      enemy.worldY = bpy + bdy * bestProgress;
+      // Only update pathIndex/progress — keep current world position.
+      // The update() tick will smoothly steer the enemy onto the new path.
       enemy.pathIndex = bestSegIndex;
       enemy.progress = bestProgress;
     }
@@ -215,10 +204,7 @@ export class EnemyManager {
         continue;
       }
 
-      // Path-derived movement: enemy position is always interpolated between
-      // consecutive path points, guaranteeing it stays on the tower-free path.
-      // When the path changes, realignEnemiesToPath projects the enemy onto
-      // the closest segment of the new path — no visible teleport.
+      // Advance progress along the path first.
       const p1 = path[enemy.pathIndex];
       const p2 = path[enemy.pathIndex + 1];
 
@@ -241,6 +227,10 @@ export class EnemyManager {
         if (enemy.pathIndex >= pathLen - 1) break;
       }
 
+      // Compute where the path says the enemy should be.
+      let pathTargetX: number;
+      let pathTargetY: number;
+
       if (enemy.pathIndex < pathLen - 1) {
           const np1 = path[enemy.pathIndex];
           const np2 = path[enemy.pathIndex + 1];
@@ -249,8 +239,32 @@ export class EnemyManager {
           const np2X = np2.col * cellSize + hcs;
           const np2Y = np2.row * cellSize + hcs;
 
-          enemy.worldX = np1X + (np2X - np1X) * enemy.progress;
-          enemy.worldY = np1Y + (np2Y - np1Y) * enemy.progress;
+          pathTargetX = np1X + (np2X - np1X) * enemy.progress;
+          pathTargetY = np1Y + (np2Y - np1Y) * enemy.progress;
+      } else {
+          // Shouldn't happen here (handled by last-segment branch above),
+          // but fall back to exit cell.
+          pathTargetX = exit.col * cellSize + hcs;
+          pathTargetY = exit.row * cellSize + hcs;
+      }
+
+      // Steer from current position toward the path target.
+      // After a path change the enemy may be slightly off the path —
+      // this moves it back at normal speed without a visible snap.
+      const offDx = pathTargetX - enemy.worldX;
+      const offDy = pathTargetY - enemy.worldY;
+      const offDist = Math.sqrt(offDx * offDx + offDy * offDy);
+
+      // Snap if close enough or if this frame's movement would reach the target.
+      // Use a small epsilon so floating-point imprecision doesn't cause drift.
+      if (offDist <= moveAmount + 0.5) {
+        enemy.worldX = pathTargetX;
+        enemy.worldY = pathTargetY;
+      } else {
+        // Off the path (e.g. right after realignment) — steer back at normal speed.
+        const ratio = moveAmount / offDist;
+        enemy.worldX += offDx * ratio;
+        enemy.worldY += offDy * ratio;
       }
     }
   }
