@@ -131,9 +131,10 @@ export class EnemyManager {
         }
       }
 
-      // Snap enemy to the projected point on the new path.
-      // This is the closest safe position on the tower-free path, ensuring
-      // subsequent waypoint-following movement stays within valid cells.
+      // Snap enemy to the closest point on the new path.
+      // Path-derived movement then guarantees the enemy stays within
+      // tower-free cells — every frame's position is interpolated between
+      // adjacent path points that A* verified as safe.
       const bp1 = path[bestSegIndex];
       const bp2 = path[bestSegIndex + 1];
       const bpx = bp1.col * cellSize + hcs;
@@ -214,41 +215,42 @@ export class EnemyManager {
         continue;
       }
 
-      // Waypoint-following: move from current world position toward next path waypoint.
-      // This avoids teleporting when the path changes — enemies always move
-      // smoothly from where they are toward the next waypoint on the current path.
-      const nextIdx = enemy.pathIndex + 1;
-      const targetX = nextIdx < pathLen
-        ? path[nextIdx].col * cellSize + hcs
-        : exit.col * cellSize + hcs;
-      const targetY = nextIdx < pathLen
-        ? path[nextIdx].row * cellSize + hcs
-        : exit.row * cellSize + hcs;
+      // Path-derived movement: enemy position is always interpolated between
+      // consecutive path points, guaranteeing it stays on the tower-free path.
+      // When the path changes, realignEnemiesToPath projects the enemy onto
+      // the closest segment of the new path — no visible teleport.
+      const p1 = path[enemy.pathIndex];
+      const p2 = path[enemy.pathIndex + 1];
 
-      const dx = targetX - enemy.worldX;
-      const dy = targetY - enemy.worldY;
-      const distToTarget = Math.sqrt(dx * dx + dy * dy);
+      const p1X = p1.col * cellSize + hcs;
+      const p1Y = p1.row * cellSize + hcs;
+      const p2X = p2.col * cellSize + hcs;
+      const p2Y = p2.row * cellSize + hcs;
+
+      const segDx = p2X - p1X;
+      const segDy = p2Y - p1Y;
+      const segLen = Math.sqrt(segDx * segDx + segDy * segDy);
 
       const moveAmount = currentSpeed * dt;
-      enemy.distanceTraveled += Math.min(moveAmount, distToTarget);
+      enemy.distanceTraveled += moveAmount;
+      enemy.progress = (enemy.progress || 0) + (moveAmount / segLen);
 
-      if (moveAmount >= distToTarget) {
-        // Reached waypoint — snap and advance to next segment
-        enemy.worldX = targetX;
-        enemy.worldY = targetY;
+      while (enemy.progress >= 1 && enemy.pathIndex < pathLen - 1) {
+        enemy.progress -= 1;
         enemy.pathIndex++;
-        enemy.progress = 0;
+        if (enemy.pathIndex >= pathLen - 1) break;
+      }
 
-        if (enemy.pathIndex >= pathLen) {
-          enemy.active = false;
-          enemy.pathIndex = 9999;
-        }
-      } else {
-        // Move toward waypoint from current position
-        const ratio = moveAmount / distToTarget;
-        enemy.worldX += dx * ratio;
-        enemy.worldY += dy * ratio;
-        enemy.progress = 1 - (distToTarget - moveAmount) / distToTarget;
+      if (enemy.pathIndex < pathLen - 1) {
+          const np1 = path[enemy.pathIndex];
+          const np2 = path[enemy.pathIndex + 1];
+          const np1X = np1.col * cellSize + hcs;
+          const np1Y = np1.row * cellSize + hcs;
+          const np2X = np2.col * cellSize + hcs;
+          const np2Y = np2.row * cellSize + hcs;
+
+          enemy.worldX = np1X + (np2X - np1X) * enemy.progress;
+          enemy.worldY = np1Y + (np2Y - np1Y) * enemy.progress;
       }
     }
   }
