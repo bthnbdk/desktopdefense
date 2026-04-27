@@ -87,56 +87,54 @@ export class EnemyManager {
   }
 
   public realignEnemiesToPath(path: Point[], cellSize: number) {
-    if (path.length === 0) return;
-    
-    // Cache half cell size
+    if (path.length < 2) return;
+
     const hcs = cellSize / 2;
 
     for (const enemy of this.enemies) {
       if (!enemy.active || enemy.type === 'flying') continue;
 
-      // Optimization: Search locally around current index first
-      let closestIndex = enemy.pathIndex;
-      let minDistance = Infinity;
+      let bestSegIndex = 0;
+      let bestProgress = 0;
+      let bestDistSq = Infinity;
 
-      const searchRadius = 10;
-      const start = Math.max(0, enemy.pathIndex - searchRadius);
-      const end = Math.min(path.length - 1, enemy.pathIndex + searchRadius);
+      // Project enemy onto every path segment, find closest projection
+      for (let i = 0; i < path.length - 1; i++) {
+        const p1 = path[i];
+        const p2 = path[i + 1];
+        const p1X = p1.col * cellSize + hcs;
+        const p1Y = p1.row * cellSize + hcs;
+        const p2X = p2.col * cellSize + hcs;
+        const p2Y = p2.row * cellSize + hcs;
 
-      for (let i = start; i <= end; i++) {
-        const pX = path[i].col * cellSize + hcs;
-        const pY = path[i].row * cellSize + hcs;
-        const dx = enemy.worldX - pX;
-        const dy = enemy.worldY - pY;
+        const segDx = p2X - p1X;
+        const segDy = p2Y - p1Y;
+        const segLenSq = segDx * segDx + segDy * segDy;
+
+        // Project enemy position onto segment, clamp to [0,1]
+        let t = 0;
+        if (segLenSq > 0) {
+          t = ((enemy.worldX - p1X) * segDx + (enemy.worldY - p1Y) * segDy) / segLenSq;
+          t = Math.max(0, Math.min(1, t));
+        }
+
+        const projX = p1X + segDx * t;
+        const projY = p1Y + segDy * t;
+        const dx = enemy.worldX - projX;
+        const dy = enemy.worldY - projY;
         const distSq = dx * dx + dy * dy;
 
-        if (distSq < minDistance) {
-            minDistance = distSq;
-            closestIndex = i;
+        if (distSq < bestDistSq) {
+          bestDistSq = distSq;
+          bestSegIndex = i;
+          bestProgress = t;
         }
       }
 
-      // If we didn't find a "good enough" match locally, do a global search (rare)
-      if (minDistance > cellSize * cellSize * 4) {
-          for (let i = 0; i < path.length; i++) {
-            const pX = path[i].col * cellSize + hcs;
-            const pY = path[i].row * cellSize + hcs;
-            const dx = enemy.worldX - pX;
-            const dy = enemy.worldY - pY;
-            const distSq = dx * dx + dy * dy;
-            if (distSq < minDistance) {
-                minDistance = distSq;
-                closestIndex = i;
-            }
-          }
-      }
-
-      enemy.pathIndex = closestIndex;
-      enemy.progress = 0;
-      
-      const targetP = path[closestIndex];
-      enemy.worldX = targetP.col * cellSize + hcs;
-      enemy.worldY = targetP.row * cellSize + hcs;
+      // Set segment and progress — enemy stays at current world position.
+      // The next update() tick will interpolate from this point along the new path.
+      enemy.pathIndex = bestSegIndex;
+      enemy.progress = bestProgress;
     }
   }
 
