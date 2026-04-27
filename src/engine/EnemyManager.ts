@@ -131,8 +131,17 @@ export class EnemyManager {
         }
       }
 
-      // Set segment and progress — enemy stays at current world position.
-      // The next update() tick will interpolate from this point along the new path.
+      // Snap enemy to the projected point on the new path.
+      // This is the closest safe position on the tower-free path, ensuring
+      // subsequent waypoint-following movement stays within valid cells.
+      const bp1 = path[bestSegIndex];
+      const bp2 = path[bestSegIndex + 1];
+      const bpx = bp1.col * cellSize + hcs;
+      const bpy = bp1.row * cellSize + hcs;
+      const bdx = (bp2.col * cellSize + hcs) - bpx;
+      const bdy = (bp2.row * cellSize + hcs) - bpy;
+      enemy.worldX = bpx + bdx * bestProgress;
+      enemy.worldY = bpy + bdy * bestProgress;
       enemy.pathIndex = bestSegIndex;
       enemy.progress = bestProgress;
     }
